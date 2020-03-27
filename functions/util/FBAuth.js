@@ -1,4 +1,5 @@
-const { admin } = require ('./admin')
+// Admin and DB are two variables initialized in admin. //
+const { admin, db } = require ('./admin')
 
 // Firebase Authentication. Validation of the Token. //
 module.exports = (req, res, next) => {
