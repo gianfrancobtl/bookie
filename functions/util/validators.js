@@ -37,7 +37,7 @@ exports.validateSignUpData = (data) => {
 }
 
 // Validate the data of the log in. Receives the parameter data = user and checks if it's all right. //
-exports.validatesLogInData = (data) => {
+exports.validateLogInData = (data) => {
 
     let errors = {};
 
@@ -49,4 +49,19 @@ exports.validatesLogInData = (data) => {
         errors,
         valid: Object.keys(errors).length === 0 ? true : false
     }
+}
+
+exports.reduceUserDetails = (data) => {
+    let userDetails = {};
+
+    // Make sure the user doesn't submit blank porperties. //
+    if(!isEmpty(data.bio.trim())) userDetails.bio = data.bio;
+    if(!isEmpty(data.website.trim())){
+        if (data.website.trim().substring(0, 4) !== 'http'){
+            userDetails.website = `http://${data.website.trim()}`;
+        } else userDetails.website = data.website;
+    }
+    if(!isEmpty(data.location.trim())) userDetails.bio = data.bio;
+
+    return userDetails;
 }

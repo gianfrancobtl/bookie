@@ -7,7 +7,7 @@ const app = require('express')();
 // Get the functions initialized in sreams, users, FBAuth // 
 const FBAuth = require('./util/FBAuth')
 const { getAllScreams, postScream } = require('./handlers/screams')
-const { signUp, logIn, uploadImage } = require('./handlers/users')
+const { signUp, logIn, uploadImage, addUserDetails, getAuthenticatedUser } = require('./handlers/users')
 
 // App is the container of all the routes of the app. //
 app.get('/screams', getAllScreams);
@@ -15,5 +15,7 @@ app.post('/scream', FBAuth, postScream);
 app.post('/signup', signUp);
 app.post('/login', logIn);
 app.post('/user/profileImage', FBAuth, uploadImage)
+app.post('/user', FBAuth, addUserDetails)
+app.get('/user', FBAuth, getAuthenticatedUser)
 
 exports.api = functions.https.onRequest(app);
