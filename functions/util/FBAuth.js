@@ -28,6 +28,7 @@ module.exports = (req, res, next) => {
         .then((data) => {
             // Validate the handle of the user. Now it can be asked from here. //
             req.user.handle = data.docs[0].data().handle;
+            req.user.imageUrl = data.docs[0].data.imageUrl;
             // Next allows the code to continue 'reading'. //
             return next();
         })

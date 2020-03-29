@@ -252,13 +252,14 @@ exports.uploadImage = (req, res) => {
                 const imageUrl = `https://firebasestorage.googleapis.com/v0/b/${
               config.storageBucket
             }/o/${imageFileName}?alt=media`;
+            // Update user database, adding the user image. //
                 return db.doc(`/users/${req.user.handle}`).update({
                     imageUrl
                 });
             })
             .then(() => {
                 return res.json({
-                    message: 'image uploaded successfully'
+                    message: 'Image uploaded successfully'
                 });
             })
             .catch((err) => {

@@ -17,7 +17,7 @@ exports.validateSignUpData = (data) => {
     // Error object to be completed by all posible errors in validation process. //
     let errors = {};
 
-    // Email validation: mustn't be empty a must be valid. //
+    // Email validation: mustn't be empty and must be valid. //
     if (isEmpty(data.email)) {
         errors.email = 'Must not be empty.'
     } else if (!isEmail(data.email)) {
@@ -38,7 +38,7 @@ exports.validateSignUpData = (data) => {
 
 // Validate the data of the log in. Receives the parameter data = user and checks if it's all right. //
 exports.validateLogInData = (data) => {
-
+    // Error object to be completed by all posible errors in validation process. //
     let errors = {};
 
     if (isEmpty(data.email)) errors.email = 'Must not be empty.';
@@ -52,6 +52,7 @@ exports.validateLogInData = (data) => {
 }
 
 exports.reduceUserDetails = (data) => {
+    // Object to be completed. //
     let userDetails = {};
 
     // Make sure the user doesn't submit blank porperties. //
