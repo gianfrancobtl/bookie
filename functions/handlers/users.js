@@ -238,7 +238,7 @@ exports.uploadImage = (req, res) => {
     busboy.on('finish', () => {
         admin
             .storage()
-            .bucket()
+            .bucket(`${config.storageBucket}`)
             .upload(imageToBeUploaded.filepath, {
                 resumable: false,
                 metadata: {
@@ -252,7 +252,7 @@ exports.uploadImage = (req, res) => {
                 const imageUrl = `https://firebasestorage.googleapis.com/v0/b/${
               config.storageBucket
             }/o/${imageFileName}?alt=media`;
-            // Update user database, adding the user image. //
+                // Update user database, adding the user image. //
                 return db.doc(`/users/${req.user.handle}`).update({
                     imageUrl
                 });
