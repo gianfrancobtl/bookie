@@ -113,7 +113,7 @@ exports.commentOnScream = (req, res) => {
     // Validate it's not empty. //
     if (req.body.body.trim() === '')
         return res.status(400).json({
-            comment: 'Must not be empty'
+            comment: 'Must not be empty.'
         });
 
     // Init of newComment object. //
