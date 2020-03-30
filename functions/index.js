@@ -52,7 +52,7 @@ app.post('/notifications', FBAuth, markNotificationsRead);
 
 exports.api = functions.region('us-central1').https.onRequest(app);
 
-// Use of firebase triggers for notifications. //
+// Use of firebase triggers -- FUNCTIONS -- //
 // Notification on likes //
 exports.createNotificationOnLike = functions
     .region('us-central1')
@@ -111,6 +111,7 @@ exports.createNotificationOnComment = functions
                     doc.exists &&
                     doc.data().userHandle !== snapshot.data().userHandle
                 ) {
+                    // If the scream exists and the user of the scream is not the same from the snapshot, set a notification. //
                     return db.doc(`/notifications/${snapshot.id}`).set({
                         createdAt: new Date().toISOString(),
                         recipient: doc.data().userHandle,
@@ -125,4 +126,77 @@ exports.createNotificationOnComment = functions
                 console.error(err);
                 return;
             });
+    });
+
+// TRIGGER: Change the user image in each scream. //
+exports.onUserImageChange = functions
+    .region('us-central1')
+    .firestore.document('/users/{userId}')
+    // Change object: two properties: before and after. Compare them. //
+    .onUpdate((change) => {
+        console.log(change.before.data());
+        console.log(change.after.data());
+        if (change.before.data().imageUrl !== change.after.data().imageUrl) {
+            console.log('image has changed');
+            // Init of bath, used for updates. //
+            const batch = db.batch();
+            // Fetch all the screams that belong to the user to change all the images. //
+            return db
+                .collection('screams')
+                .where('userHandle', '==', change.before.data().handle)
+                .get()
+                .then((data) => {
+                    data.forEach((doc) => {
+                        const scream = db.doc(`/screams/${doc.id}`);
+                        // Updates the user image. //
+                        batch.update(scream, {
+                            userImage: change.after.data().imageUrl
+                        });
+                    });
+                    return batch.commit();
+                });
+        } else return true;
+    });
+
+// If a scream is deleted, delete all the likes, comments and notifications related to it. //
+exports.onScreamDelete = functions
+    .region('us-central1')
+    .firestore.document('/screams/{screamId}')
+    .onDelete((snapshot, context) => {
+        // Context: info in the url. //
+        const screamId = context.params.screamId;
+        // Init of bath, used for updates. //
+        const batch = db.batch();
+        return db
+            .collection('comments')
+            .where('screamId', '==', screamId)
+            .get()
+            .then((data) => {
+                // Once we get the comments, delete them. //
+                data.forEach((doc) => {
+                    batch.delete(db.doc(`/comments/${doc.id}`));
+                });
+                return db
+                    .collection('likes')
+                    .where('screamId', '==', screamId)
+                    .get();
+            })
+            .then((data) => {
+                data.forEach((doc) => {
+                    // Once we get the likes, delete them. //
+                    batch.delete(db.doc(`/likes/${doc.id}`));
+                });
+                return db
+                    .collection('notifications')
+                    .where('screamId', '==', screamId)
+                    .get();
+            })
+            .then((data) => {
+                data.forEach((doc) => {
+                    // Once we get the notifications, delete them. //
+                    batch.delete(db.doc(`/notifications/${doc.id}`));
+                });
+                return batch.commit();
+            })
+            .catch((err) => console.error(err));
     });
